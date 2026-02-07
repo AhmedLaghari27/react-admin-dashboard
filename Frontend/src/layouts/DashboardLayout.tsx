@@ -1,5 +1,5 @@
 import { AppShell, Burger, Group, Text, Avatar, Menu, UnstyledButton, rem, Box, ActionIcon } from '@mantine/core';
-
+import { useDisclosure } from '@mantine/hooks';
 import {
     IconLogout,
     IconSettings,
@@ -13,27 +13,41 @@ import {
     IconMoon,
     IconSun
 } from '@tabler/icons-react';
-import { useDisclosure } from '@mantine/hooks';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '../auth/AuthContexts';
 
-const navLinks = [
-    { icon: IconDashboard, label: 'Dashboard', path: '/dashboard' },
-    { icon: IconUsers, label: 'Users', path: '/users' },
-    { icon: IconPackage, label: 'Products', path: '/products' },
-    { icon: IconShoppingCart, label: 'Orders', path: '/orders' },
-    { icon: IconSettings, label: 'Settings', path: '/settings' },
-];
-
 export function DashboardLayout() {
-    const { logout, user, roles } = useAuth(); // ✅ Using useAuth hook
-    const [opened, { toggle }] = useDisclosure(); // ✅ Added this (was missing)
-    const [darkMode, setDarkMode] = useState(true); // ✅ Added this (was missing)
-    const location = useLocation(); // ✅ Added this (was missing)
+    const { logout, user, roles } = useAuth();
+    const [opened, { toggle }] = useDisclosure();
+    const [darkMode, setDarkMode] = useState(true);
+    const location = useLocation();
+
+    // Dynamic navigation based on user role
+    const navLinks = useMemo(() => {
+        const isAdmin = roles?.includes('admin');
+
+        if (isAdmin) {
+            // Admin sees all pages
+            return [
+                { icon: IconDashboard, label: 'Dashboard', path: '/dashboard' },
+                { icon: IconUsers, label: 'Users', path: '/users' },
+                { icon: IconPackage, label: 'Products', path: '/products' },
+                { icon: IconShoppingCart, label: 'Orders', path: '/orders' },
+                { icon: IconSettings, label: 'Settings', path: '/settings' },
+            ];
+        } else {
+            // Regular users see only 3 pages
+            return [
+                { icon: IconPackage, label: 'Products', path: '/products' },
+                { icon: IconShoppingCart, label: 'Orders', path: '/orders' },
+                { icon: IconSettings, label: 'Settings', path: '/settings' },
+            ];
+        }
+    }, [roles]);
 
     const handleLogout = async () => {
-        await logout(); // ✅ Using logout from useAuth
+        await logout();
     };
 
     return (
@@ -138,16 +152,13 @@ export function DashboardLayout() {
                                                 background: 'linear-gradient(135deg, #4988C4 0%, #667eea 100%)',
                                             }}
                                         >
-                                            {/* ✅ Fixed: Using user from useAuth */}
                                             {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                                         </Avatar>
                                         <Box style={{ flex: 1 }}>
                                             <Text size="sm" fw={600} c="white">
-                                                {/* ✅ Fixed: Using user from useAuth */}
                                                 {user?.firstName} {user?.lastName}
                                             </Text>
                                             <Text size="xs" c="dimmed">
-                                                {/* ✅ Fixed: Using roles from useAuth */}
                                                 {roles?.includes('admin') ? 'Administrator' : 'User'}
                                             </Text>
                                         </Box>
