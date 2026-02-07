@@ -11,11 +11,35 @@ import {
     Title,
     Box,
     rem,
+    Alert,
 } from '@mantine/core';
-import { IconLogin, IconSparkles, IconShield, IconLock } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import keycloakService from '../services/keycloakService';
 
 export function AuthenticationTitle() {
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            await keycloakService.login(email, password);
+            navigate('/dashboard');
+        } catch (err: any) {
+            setError(err.message || 'Login failed. Please check your credentials.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <Box
             style={{
@@ -29,7 +53,7 @@ export function AuthenticationTitle() {
                 overflow: 'hidden',
             }}
         >
-            {/* Animated Background Elements */}
+            {/* Background Elements */}
             <Box
                 style={{
                     position: 'absolute',
@@ -56,7 +80,6 @@ export function AuthenticationTitle() {
             />
 
             <Container size={500} style={{ position: 'relative', zIndex: 1 }}>
-                {/* Logo/Icon Section */}
                 <Box ta="center" mb={40}>
                     <Box
                         style={{
@@ -73,19 +96,7 @@ export function AuthenticationTitle() {
                             position: 'relative',
                         }}
                     >
-                        <IconSparkles size={45} color="white" stroke={2} />
-                        {/* Glow effect */}
-                        <Box
-                            style={{
-                                position: 'absolute',
-                                inset: '-10px',
-                                borderRadius: '50%',
-                                background: 'linear-gradient(135deg, #4988C4, #667eea)',
-                                filter: 'blur(20px)',
-                                opacity: 0.5,
-                                zIndex: -1,
-                            }}
-                        />
+                        <Text size="xl" fw={900} c="white">M</Text>
                     </Box>
 
                     <Title
@@ -99,7 +110,6 @@ export function AuthenticationTitle() {
                             backgroundClip: 'text',
                             letterSpacing: '-1.5px',
                             marginBottom: rem(12),
-                            textShadow: '0 0 30px rgba(73, 136, 196, 0.5)',
                         }}
                     >
                         MANTIX
@@ -117,7 +127,6 @@ export function AuthenticationTitle() {
                     </Text>
                 </Box>
 
-                {/* Login Card */}
                 <Paper
                     shadow="xl"
                     p={40}
@@ -129,195 +138,170 @@ export function AuthenticationTitle() {
                         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 1px rgba(73, 136, 196, 0.3) inset',
                     }}
                 >
-                    {/* Feature Pills */}
-                    <Group justify="center" gap="xs" mb="xl">
-                        <Box
-                            style={{
-                                padding: `${rem(8)} ${rem(16)}`,
-                                background: 'linear-gradient(135deg, rgba(73, 136, 196, 0.2) 0%, rgba(73, 136, 196, 0.1) 100%)',
-                                borderRadius: rem(20),
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: rem(8),
-                                border: '1px solid rgba(73, 136, 196, 0.3)',
+                    {error && (
+                        <Alert
+                            icon={<IconAlertCircle size={16} />}
+                            color="red"
+                            mb="md"
+                            styles={{
+                                root: {
+                                    background: 'rgba(255, 107, 107, 0.1)',
+                                    border: '1px solid rgba(255, 107, 107, 0.3)',
+                                },
                             }}
                         >
-                            <IconShield size={16} color="#4988C4" />
-                            <Text size="xs" c="#4988C4" fw={700}>SECURE</Text>
-                        </Box>
-                        <Box
-                            style={{
-                                padding: `${rem(8)} ${rem(16)}`,
-                                background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.1) 100%)',
-                                borderRadius: rem(20),
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: rem(8),
-                                border: '1px solid rgba(102, 126, 234, 0.3)',
-                            }}
-                        >
-                            <IconLock size={16} color="#667eea" />
-                            <Text size="xs" c="#667eea" fw={700}>ENCRYPTED</Text>
-                        </Box>
-                    </Group>
+                            {error}
+                        </Alert>
+                    )}
 
-                    <TextInput
-                        label="Email Address"
-                        placeholder="you@example.com"
-                        required
-                        radius="md"
-                        size="md"
-                        styles={{
-                            label: {
-                                fontWeight: 700,
-                                color: 'rgba(255, 255, 255, 0.9)',
-                                marginBottom: rem(10),
-                                fontSize: rem(13),
-                                letterSpacing: '0.5px',
-                                textTransform: 'uppercase',
-                            },
-                            input: {
-                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                border: '1px solid rgba(73, 136, 196, 0.3)',
-                                color: 'white',
-                                transition: 'all 0.3s ease',
-                                '&::placeholder': {
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                },
-                                '&:focus': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                                    borderColor: '#4988C4',
-                                    boxShadow: '0 0 0 3px rgba(73, 136, 196, 0.15), 0 0 20px rgba(73, 136, 196, 0.2)',
-                                },
-                            },
-                        }}
-                    />
-
-                    <PasswordInput
-                        label="Password"
-                        placeholder="Enter your password"
-                        required
-                        mt="md"
-                        radius="md"
-                        size="md"
-                        styles={{
-                            label: {
-                                fontWeight: 700,
-                                color: 'rgba(255, 255, 255, 0.9)',
-                                marginBottom: rem(10),
-                                fontSize: rem(13),
-                                letterSpacing: '0.5px',
-                                textTransform: 'uppercase',
-                            },
-                            input: {
-                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                border: '1px solid rgba(73, 136, 196, 0.3)',
-                                color: 'white',
-                                transition: 'all 0.3s ease',
-                                '&::placeholder': {
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                },
-                                '&:focus': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                                    borderColor: '#4988C4',
-                                    boxShadow: '0 0 0 3px rgba(73, 136, 196, 0.15), 0 0 20px rgba(73, 136, 196, 0.2)',
-                                },
-                            },
-                            innerInput: {
-                                color: 'white',
-                            },
-                        }}
-                    />
-
-                    <Group justify="space-between" mt="xl">
-                        <Checkbox
-                            label="Remember me"
+                    <form onSubmit={handleLogin}>
+                        <TextInput
+                            label="Email or Username"
+                            placeholder="you@example.com"
+                            required
+                            radius="md"
+                            size="md"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             styles={{
                                 label: {
-                                    color: 'rgba(255, 255, 255, 0.7)',
-                                    fontWeight: 500,
+                                    fontWeight: 700,
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    marginBottom: rem(10),
+                                    fontSize: rem(13),
+                                    letterSpacing: '0.5px',
+                                    textTransform: 'uppercase',
                                 },
                                 input: {
                                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
                                     border: '1px solid rgba(73, 136, 196, 0.3)',
-                                    '&:checked': {
-                                        backgroundColor: '#4988C4',
+                                    color: 'white',
+                                    '&::placeholder': {
+                                        color: 'rgba(255, 255, 255, 0.4)',
+                                    },
+                                    '&:focus': {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
                                         borderColor: '#4988C4',
+                                        boxShadow: '0 0 0 3px rgba(73, 136, 196, 0.15)',
                                     },
                                 },
                             }}
                         />
 
-                        <Anchor
-                            component={Link}
-                            to="/forgot-password"
-                            size="sm"
-                            style={{
-                                color: '#4988C4',
-                                fontWeight: 600,
-                                textDecoration: 'none',
-                                transition: 'all 0.3s ease',
-                            }}
-                        >
-                            Forgot password?
-                        </Anchor>
-                    </Group>
-
-                    <Button
-                        fullWidth
-                        mt="xl"
-                        radius="md"
-                        size="lg"
-                        rightSection={<IconLogin size={20} />}
-                        style={{
-                            background: 'linear-gradient(135deg, #4988C4 0%, #667eea 100%)',
-                            fontWeight: 700,
-                            fontSize: rem(15),
-                            height: rem(52),
-                            boxShadow: '0 0 30px rgba(73, 136, 196, 0.4)',
-                            border: 'none',
-                            transition: 'all 0.3s ease',
-                            letterSpacing: '1px',
-                            textTransform: 'uppercase',
-                        }}
-                        styles={{
-                            root: {
-                                '&:hover': {
-                                    transform: 'translateY(-2px)',
-                                    boxShadow: '0 0 40px rgba(73, 136, 196, 0.6), 0 5px 20px rgba(0, 0, 0, 0.3)',
+                        <PasswordInput
+                            label="Password"
+                            placeholder="Enter your password"
+                            required
+                            mt="md"
+                            radius="md"
+                            size="md"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            styles={{
+                                label: {
+                                    fontWeight: 700,
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    marginBottom: rem(10),
+                                    fontSize: rem(13),
+                                    letterSpacing: '0.5px',
+                                    textTransform: 'uppercase',
                                 },
-                            },
-                        }}
-                    >
-                        Sign In
-                    </Button>
+                                input: {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                    border: '1px solid rgba(73, 136, 196, 0.3)',
+                                    color: 'white',
+                                    '&::placeholder': {
+                                        color: 'rgba(255, 255, 255, 0.4)',
+                                    },
+                                    '&:focus': {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                                        borderColor: '#4988C4',
+                                        boxShadow: '0 0 0 3px rgba(73, 136, 196, 0.15)',
+                                    },
+                                },
+                                innerInput: {
+                                    color: 'white',
+                                },
+                            }}
+                        />
 
-                    <Text
-                        ta="center"
-                        mt="xl"
-                        size="sm"
-                        style={{
-                            color: 'rgba(255, 255, 255, 0.6)',
-                        }}
-                    >
-                        Don't have an account?{' '}
-                        <Anchor
-                            component={Link}
-                            to="/signup"
-                            size="sm"
+                        <Group justify="space-between" mt="xl">
+                            <Checkbox
+                                label="Remember me"
+                                styles={{
+                                    label: {
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        fontWeight: 500,
+                                    },
+                                    input: {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                        border: '1px solid rgba(73, 136, 196, 0.3)',
+                                        '&:checked': {
+                                            backgroundColor: '#4988C4',
+                                            borderColor: '#4988C4',
+                                        },
+                                    },
+                                }}
+                            />
+
+                            <Anchor
+                                component={Link}
+                                to="/forgot-password"
+                                size="sm"
+                                style={{
+                                    color: '#4988C4',
+                                    fontWeight: 600,
+                                    textDecoration: 'none',
+                                }}
+                            >
+                                Forgot password?
+                            </Anchor>
+                        </Group>
+
+                        <Button
+                            fullWidth
+                            mt="xl"
+                            radius="md"
+                            size="lg"
+                            type="submit"
+                            loading={loading}
                             style={{
-                                color: '#4988C4',
+                                background: 'linear-gradient(135deg, #4988C4 0%, #667eea 100%)',
                                 fontWeight: 700,
-                                textDecoration: 'none',
-                                transition: 'all 0.3s ease',
+                                fontSize: rem(15),
+                                height: rem(52),
+                                letterSpacing: '1px',
+                                textTransform: 'uppercase',
                             }}
                         >
-                            Create account
-                        </Anchor>
-                    </Text>
+                            Sign In
+                        </Button>
+
+                        <Text
+                            ta="center"
+                            mt="xl"
+                            size="sm"
+                            style={{
+                                color: 'rgba(255, 255, 255, 0.6)',
+                            }}
+                        >
+                            Don't have an account?{' '}
+                            <Anchor
+                                component={Link}
+                                to="/signup"
+                                size="sm"
+                                style={{
+                                    color: '#4988C4',
+                                    fontWeight: 700,
+                                    textDecoration: 'none',
+                                }}
+                            >
+                                Create account
+                            </Anchor>
+                        </Text>
+                    </form>
                 </Paper>
 
-                {/* Footer Text */}
                 <Text
                     ta="center"
                     mt="xl"

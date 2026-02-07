@@ -1,17 +1,75 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthenticationTitle } from '../Frontend/src/pages/Login'; // adjust path as needed
-import { ForgotPassword } from '../Frontend/src/pages/ForgotPassword'; // adjust path as needed
-import { CreateAccount } from '../Frontend/src/pages/Signin'; // adjust path as needed
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthenticationTitle } from '../Frontend/src/pages/Login';
+import { ForgotPassword } from '../Frontend/src/pages/ForgotPassword';
+import { CreateAccount } from '../Frontend/src/pages/Signin';
+import { DashboardLayout } from '../Frontend/src/layouts/DashboardLayout';
+import { Dashboard } from '../Frontend/src/pages/Dashboard';
+import ProtectedRoute from '../Frontend/src/components/ProtectedRoute';
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AuthenticationTitle />} />
+        {/* Public Auth Routes */}
         <Route path="/login" element={<AuthenticationTitle />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/signup" element={<CreateAccount />} />
-        {/* Add signup route when you create it */}
-        {/* <Route path="/signup" element={<Signup />} /> */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* Protected Dashboard Routes */}
+        <Route element={<DashboardLayout />}>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <div style={{ color: 'white', padding: '20px' }}>
+                  <h1>Users Management - Admin Only</h1>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products"
+            element={
+              <ProtectedRoute>
+                <div style={{ color: 'white', padding: '20px' }}>
+                  <h1>Products Page</h1>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <div style={{ color: 'white', padding: '20px' }}>
+                  <h1>Orders Page</h1>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <div style={{ color: 'white', padding: '20px' }}>
+                  <h1>Settings Page</h1>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+
+        {/* Redirects */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
