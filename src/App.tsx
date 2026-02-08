@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../Frontend/src/auth/AuthContexts';
-import { AppDataProvider } from '../Frontend/src/auth/AppDataContext'; // ← New
+import { AppDataProvider } from '../Frontend/src/auth/AppDataContext';
 import { AuthenticationTitle } from '../Frontend/src/pages/Login';
 import { ForgotPassword } from '../Frontend/src/pages/ForgotPassword';
 import { CreateAccount } from '../Frontend/src/pages/Signin';
 import { DashboardLayout } from '../Frontend/src/layouts/DashboardLayout';
-import { Dashboard } from '../Frontend/src/pages/Dashboard'; // ← Updated unified dashboard
+import { Dashboard } from '../Frontend/src/pages/Dashboard';
+import { Users } from '../Frontend/src/pages/Users'; // ← New import
 import { Products } from '../Frontend/src/pages/Products';
 import { Orders } from '../Frontend/src/pages/Orders';
 import ProtectedRoute from '../Frontend/src/components/ProtectedRoute';
@@ -14,7 +15,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppDataProvider> {/* ← Wrap with AppDataProvider */}
+        <AppDataProvider>
           <Routes>
             {/* Public Auth Routes */}
             <Route path="/login" element={<AuthenticationTitle />} />
@@ -30,14 +31,13 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="dashboard" element={<Dashboard />} /> {/* ← Unified dashboard */}
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route
                 path="users"
                 element={
                   <ProtectedRoute requiredRole="admin">
-                    <div style={{ color: 'white', padding: '20px' }}>
-                      <h1>Users Management - Admin Only</h1>
-                    </div>
+                    <Users /> {/* ← New Users page */}
                   </ProtectedRoute>
                 }
               />
@@ -77,7 +77,6 @@ function App() {
             />
 
             {/* Redirects */}
-            <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </AppDataProvider>

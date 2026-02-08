@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContexts';
 import { Box, Loader } from '@mantine/core';
 
@@ -9,6 +9,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
     const { isAuthenticated, hasRole, loading } = useAuth();
+    const location = useLocation();
 
     // Show loader while checking authentication
     if (loading) {
@@ -27,14 +28,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
         );
     }
 
+    // If not authenticated, redirect to login
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
+    // If role is required but user doesn't have it, redirect to unauthorized
     if (requiredRole && !hasRole(requiredRole)) {
         return <Navigate to="/unauthorized" replace />;
     }
 
+    // User is authenticated and has required role (if any)
     return <>{children}</>;
 };
 

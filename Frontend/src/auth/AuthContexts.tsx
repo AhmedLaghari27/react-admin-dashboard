@@ -31,11 +31,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         // Check if user is authenticated on mount
         const checkAuth = () => {
+            console.log('Checking authentication...');
             const authenticated = keycloakService.isAuthenticated();
+            console.log('Is authenticated:', authenticated);
             setIsAuthenticated(authenticated);
 
             if (authenticated) {
                 const userInfo = keycloakService.getUserInfo();
+                console.log('User info:', userInfo);
                 if (userInfo) {
                     setUser({
                         id: userInfo.sub,
@@ -45,6 +48,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         lastName: userInfo.family_name || '',
                     });
                     setRoles(userInfo.roles || []);
+                    console.log('User set:', userInfo.preferred_username);
+                    console.log('Roles set:', userInfo.roles);
                 }
             }
             setLoading(false);
@@ -71,8 +76,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const handleLogin = async (username: string, password: string) => {
         setLoading(true);
         try {
+            console.log('Attempting login for:', username);
             await keycloakService.login(username, password);
             const userInfo = keycloakService.getUserInfo();
+            console.log('Login successful, user info:', userInfo);
 
             setIsAuthenticated(true);
             setUser({
@@ -83,6 +90,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 lastName: userInfo.family_name || '',
             });
             setRoles(userInfo.roles || []);
+            console.log('Authentication state updated');
+        } catch (error) {
+            console.error('Login failed:', error);
+            throw error;
         } finally {
             setLoading(false);
         }
@@ -92,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         try {
             await keycloakService.register(userData);
-            // DON'T auto login - let user login manually
+            // Don't auto-login, let user login manually
         } finally {
             setLoading(false);
         }

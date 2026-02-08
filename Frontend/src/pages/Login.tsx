@@ -15,15 +15,24 @@ import {
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import keycloakService from '../services/keycloakService';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../auth/AuthContexts';
 
 export function AuthenticationTitle() {
     const navigate = useNavigate();
+    const { login, isAuthenticated } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            console.log('User is authenticated, redirecting to dashboard');
+            navigate('/dashboard', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,9 +40,12 @@ export function AuthenticationTitle() {
         setLoading(true);
 
         try {
-            await keycloakService.login(email, password);
-            navigate('/dashboard');
+            console.log('Starting login process...');
+            await login(email, password);
+            console.log('Login function completed');
+            // Navigation will happen via useEffect when isAuthenticated changes
         } catch (err: any) {
+            console.error('Login error:', err);
             setError(err.message || 'Login failed. Please check your credentials.');
         } finally {
             setLoading(false);
@@ -96,7 +108,9 @@ export function AuthenticationTitle() {
                             position: 'relative',
                         }}
                     >
-                        <Text size="xl" fw={900} c="white">M</Text>
+                        <Text size="xl" fw={900} c="white">
+                            M
+                        </Text>
                     </Box>
 
                     <Title
