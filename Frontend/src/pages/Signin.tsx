@@ -69,7 +69,7 @@ export function CreateAccount() {
         setLoading(true);
 
         try {
-            await keycloakService.register({
+            await register({
                 username: formData.username,
                 email: formData.email,
                 firstName: formData.firstName,
@@ -78,14 +78,9 @@ export function CreateAccount() {
             });
 
             setSuccess(true);
-
-            // Auto login after registration
-            setTimeout(async () => {
-                await keycloakService.login(formData.username, formData.password);
-                navigate('/dashboard');
-            }, 2000);
-        } catch (err: any) {
-            setError(err.message || 'Registration failed. Please try again.');
+            setTimeout(() => navigate('/login'), 2000);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Registration failed');
         } finally {
             setLoading(false);
         }
@@ -571,4 +566,11 @@ export function CreateAccount() {
             </Container>
         </Box>
     );
+};
+
+async function register(arg0: { username: string; email: string; firstName: string; lastName: string; password: string; }) {
+    // Implementation for user registration
+    const response = await keycloakService.register(arg0);
+    return response;
 }
+

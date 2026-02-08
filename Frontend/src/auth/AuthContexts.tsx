@@ -92,8 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         try {
             await keycloakService.register(userData);
-            // Auto login after registration
-            await handleLogin(userData.username, userData.password);
+            // DON'T auto login - let user login manually
         } finally {
             setLoading(false);
         }

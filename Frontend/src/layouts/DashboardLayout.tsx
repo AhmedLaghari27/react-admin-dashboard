@@ -28,17 +28,15 @@ export function DashboardLayout() {
         const isAdmin = roles?.includes('admin');
 
         if (isAdmin) {
-            // Admin sees all pages
+            // Admin sees: Dashboard, Users
             return [
                 { icon: IconDashboard, label: 'Dashboard', path: '/dashboard' },
                 { icon: IconUsers, label: 'Users', path: '/users' },
-                { icon: IconPackage, label: 'Products', path: '/products' },
-                { icon: IconShoppingCart, label: 'Orders', path: '/orders' },
-                { icon: IconSettings, label: 'Settings', path: '/settings' },
             ];
         } else {
-            // Regular users see only 3 pages
+            // Regular users see: Dashboard, Products, Orders, Settings
             return [
+                { icon: IconDashboard, label: 'Dashboard', path: '/dashboard' },
                 { icon: IconPackage, label: 'Products', path: '/products' },
                 { icon: IconShoppingCart, label: 'Orders', path: '/orders' },
                 { icon: IconSettings, label: 'Settings', path: '/settings' },
